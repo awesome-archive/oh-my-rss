@@ -26,7 +26,7 @@ class SiteAdmin(admin.ModelAdmin):
 class ArticleAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'status', 'ctime')
     search_fields = ('title', 'content', 'src_url', 'uindex', 'remark', 'author')
-    list_filter = ('status', )
+    list_filter = ('status', 'is_recent')
     list_per_page = 50
 
 
@@ -41,4 +41,17 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ['nickname', 'content', 'contact', 'remark']
     list_editable = ['reply', ]
     list_filter = ('status',)
+    list_per_page = 50
+
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.CharField: {'widget': TextInput(attrs={'size': '10'})},
+        models.TextField: {'widget': Textarea(attrs={'rows': 2, 'cols': 20})},
+    }
+    list_display = ['oauth_id', 'oauth_name', 'oauth_email', 'oauth_blog', 'avatar', 'status', 'ctime', 'mtime',
+                    'remark']
+    list_editable = ['remark', ]
+    list_filter = ('status', )
     list_per_page = 50

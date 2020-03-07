@@ -26,11 +26,11 @@ class ValidPipeline(object):
 
         if item['title'] and item['content'] and item['url'] and item['name'] and item['req_url']:
             if 'github' in item['url'] and '，禁止转载' in item['content']:
-                return DropItem(f"Data not allowed`{item}")
+                return DropItem(f"Data not allowed`{item['title']}")
             else:
                 return item
         else:
-            raise DropItem(f"Data not valid`{item}")
+            raise DropItem(f"Data not valid`{item['title']}")
 
 
 class DomPipeline(object):
@@ -47,6 +47,10 @@ class DomPipeline(object):
             abs_href = urllib.parse.urljoin(item['url'], rel_href)
             a.attrs['href'] = abs_href
             a.attrs['target'] = '_blank'
+
+            # trim empty a tag
+            if not a.contents:
+                a.decompose()
 
         # to absolute src
         for img in content_soup.find_all('img'):
@@ -65,6 +69,7 @@ class DomPipeline(object):
             rel_src = img.attrs.get('src')
             abs_src = urllib.parse.urljoin(item['url'], rel_src)
             img.attrs['src'] = abs_src
+
         # code style
         for pre in content_soup.find_all('pre'):
             try:
@@ -81,9 +86,13 @@ class DomPipeline(object):
             s.attrs['style'] = "white-space:pre;"
 
         # reset span font size
-        for span in (content_soup.find_all('span') + content_soup.find_all('p')):
-            if span.attrs.get('style'):
-                span.attrs['style'] = re.sub(r'font-size\s*:\s*[^;]+;', '', span.attrs['style'])
+        for tag in (content_soup.find_all('span') + content_soup.find_all('p')):
+            if tag.attrs.get('style'):
+                tag.attrs['style'] = re.sub(r'font-size\s*:\s*[^;]+;', '', tag.attrs['style'])
+
+            # trim empty tag
+            if not tag.contents:
+                tag.decompose()
 
         # trim style tags
         if item.get('trim_style_tags'):
@@ -94,7 +103,7 @@ class DomPipeline(object):
 
         # trim contents
         if item.get('trims'):
-            content_etree = etree.fromstring(str(content_soup), etree.HTMLParser())
+            content_etree = etree.fromstring(str(content_soup))
             for xpath in item['trims']:
                 for node in content_etree.xpath(xpath):
                     node.getparent().remove(node)
@@ -116,8 +125,10 @@ class InsertDBPipeline(object):
         if site.status == 'active':
             try:
                 article = Article(site=site, title=item['title'], uindex=current_ts(), content=item['content'],
-                                  remark='', src_url=item['url'])
+                                  remark='', src_url=item['url'], author=item.get('author'))
                 article.save()
+
+                spider.logger.info(f"Insert to DB:`{item['title']}`{item['url']}")
 
                 # mark status
                 mark_crawled_url(item['url'], item['req_url'])

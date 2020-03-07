@@ -9,7 +9,8 @@ class Spider(scrapy.Spider):
     """
 
     def __init__(self, start_urls, index_xpath, article_title_xpath, article_content_xpath, article_trim_xpaths=None,
-                 index_limit_count=None, index_reverse=False, browser=False, css=None, trim_style_tags=None):
+                 index_limit_count=None, index_reverse=False, browser=False, css=None, trim_style_tags=None,
+                 article_author_xpath=None):
         self.start_urls = start_urls
         self.index_xpath = index_xpath
         self.article_title_xpath = article_title_xpath
@@ -20,6 +21,7 @@ class Spider(scrapy.Spider):
         self.browser = browser
         self.css = css
         self.trim_style_tags = trim_style_tags
+        self.article_author_xpath = article_author_xpath
 
     def parse(self, response):
         content_urls = response.xpath(self.index_xpath).extract()
@@ -46,13 +48,21 @@ class Spider(scrapy.Spider):
         except AttributeError:
             self.logger.warning("Xpath Error`%s", response.url)
             return False
+
+        author = ''
+        if self.article_author_xpath:
+            try:
+                author = response.xpath(self.article_author_xpath).extract_first().strip()[:100]
+            except:
+                pass
+
         url = response.url
         try:
             req_url = response.meta['redirect_urls'][0]
         except KeyError:
             req_url = url
         yield FeedItem(title=title, content=content, url=url, name=self.name, trims=self.article_trim_xpaths,
-                       req_url=req_url, css=self.css, trim_style_tags=self.trim_style_tags)
+                       req_url=req_url, css=self.css, trim_style_tags=self.trim_style_tags, author=author)
 
 
 class TitleSpider(Spider):

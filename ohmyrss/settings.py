@@ -87,6 +87,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'OPTIONS': {
+            'timeout': 20,
+        }
     }
 }
 
@@ -124,8 +127,10 @@ USE_L10N = True
 USE_TZ = True
 
 CRONJOBS = [
-   ('1 0-23 * * *', 'web.cron.update_all_user_feed'),
-   ('11 3 * * *', 'web.cron.clean_history_data')
+   ('1 6-23 * * *', 'web.cron.update_all_user_feed'),
+   ('30 1,12,18 * * *', 'web.cron.update_all_wemp_feed'),
+   ('11 3 * * *', 'web.cron.clean_history_data'),
+   ('*/3 * * * *', 'web.cron.set_is_recent_article')
 ]
 
 # Static files (CSS, JavaScript, Images)
@@ -150,6 +155,15 @@ REDIS_VIEW_KEY = 'VIEW/%s'
 REDIS_THUMB_KEY = 'THUMB/%s'
 REDIS_OPEN_KEY = 'OPEN/%s'
 
+# register user count
+REDIS_REG_KEY = 'REG/%s'
+
+# api response time
+REDIS_API_KEY = 'API/ALL'
+REDIS_API_AVG_KEY = 'API/AVG/%s/%s'
+REDIS_API_TOTAL_KEY = 'API/TOTAL/%s/%s'
+REDIS_API_COUNT_KEY = 'API/COUNT/%s/%s'
+
 # for dashboard statistics
 REDIS_WEEK_KEY = 'WEEK/%s'
 REDIS_VISIT_KEY = 'VISIT/%s/%s'
@@ -160,6 +174,21 @@ REDIS_UV_NEW_KEY = 'UV/NEW/%s'
 REDIS_REFER_ALL_KEY = 'REFER/ALL'
 REDIS_REFER_PV_KEY = 'REFER/%s'
 REDIS_REFER_PV_DAY_KEY = 'REFER/%s/%s'
+
+# user subscribe list
+REDIS_USER_SUB_KEY = 'SUB/%s'
+
+# user read article flag
+REDIS_USER_READ_KEY = 'READ/%s/%s'
+
+# active rss in 3 days
+REDIS_ACTIVE_RSS_KEY = 'ACTIVE/%s'
+
+SENSITIVE_WORDS = ('科学上网', '各种翻墙工具')
+
+# github OAuth
+GITHUB_OAUTH_KEY = '4b40da1eb0585bf03dda'
+GITHUB_OAUTH_SECRET = 'c985780931b223658064d3218095d916106238d7'
 
 LOGGING = {
     'version': 1,

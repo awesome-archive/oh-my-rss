@@ -1,12 +1,38 @@
+{% load helpers %}
 <ul class="sidenav" id="omrss-sidenav">
 
-    <li class="ev-toggle-fullscreen sidenav-close" data-tooltip="切换全屏" data-position="bottom">
-        <a href="#!"><i class="material-icons omrss-color">fullscreen</i>切换全屏</a>
+    <li>
+        <div class="user-view">
+            <div class="background">
+                <img src="/assets/img/avatar-bg.jpg">
+            </div>
+            {% if user %}
+            <a href="{{ user.oauth_blog }}" target="_blank">
+                <img class="circle" alt="头像" src="{{ user.avatar }}"></a>
+            <a href="{{ user.oauth_blog }}" target="_blank">
+                <span class="white-text name nav-name">{{ user.oauth_name }}</span></a>
+            {% else %}
+            <a href="#model-omrss-login" class="modal-trigger">
+                <i class="material-icons white-text circle omrss-visitor-avatar">person</i></a>
+            <a href="#model-omrss-login" class="modal-trigger">
+                <span class="white-text name nav-name">一键登录</span></a>
+            {% endif %}
+        </div>
     </li>
 
+    <!-- 有点鸡肋
+    <li class="ev-toggle-fullscreen sidenav-close" data-tooltip="切换全屏" data-position="bottom">
+        <a href="#"><i class="material-icons omrss-color">fullscreen</i>切换全屏</a>
+    </li>
+    -->
+
     <li>
-        <a href="#!" class="waves-effect ev-mark-readall sidenav-close">
+        <a href="#" class="waves-effect ev-mark-readall sidenav-close">
             <i class="material-icons omrss-color">check</i>全部设为已读</a>
+    </li>
+
+    <li class="ev-leave-msg sidenav-close">
+        <a href="#"><i class="material-icons omrss-color">format_quote</i>留言</a>
     </li>
 
     <li>
@@ -14,20 +40,26 @@
             <i class="material-icons omrss-color">trending_up</i>后台报表</a>
     </li>
 
+    <div class="divider nav-divider"></div>
+
     <li class="ev-intro sidenav-close">
-        <a href="#!"><i class="material-icons omrss-color">info_outline</i>关于</a>
+        <a href="#"><i class="material-icons omrss-color">info_outline</i>关于</a>
     </li>
 
     <li class="ev-faq sidenav-close">
-        <a href="#!"><i class="material-icons omrss-color">help_outline</i>FAQ</a>
+        <a href="#"><i class="material-icons omrss-color">help_outline</i>FAQ</a>
+    </li>
+
+    <li class="sidenav-close">
+        <a href="https://github.com/richshaw2015/oh-my-rss" target="_blank"><i class="material-icons omrss-color">code</i>GitHub</a>
     </li>
 </ul>
 
 
 <nav id="omrss-nav">
     <div class="nav-wrapper">
-        <a href="#!" class="brand-logo tooltipped" id="omrss-logo-font" data-tooltip="首页"
-           data-position="bottom"><img src="/assets/img/logo.png" id="omrss-logo">Oh My RSS</a>
+        <a href="#" class="brand-logo tooltipped" id="omrss-logo-font" data-tooltip="首页"
+           data-position="bottom"><img src="/assets/img/logo.png" id="omrss-logo">己思</a>
         <!--
         <form class="omrss-top-form">
             <div class="input-field">
@@ -45,14 +77,25 @@
            <li><a href="sass.html"><i class="material-icons">search</i></a></li>
            -->
 
+            <li class="tooltipped ev-explore" data-tooltip="发现" data-position="bottom">
+                <a href="#"><i class="material-icons omrss-color">highlight</i></a>
+            </li>
+
             <li class="tooltipped ev-my-feed" data-tooltip="我的订阅" data-position="bottom">
-                <a href="#!"><i class="material-icons omrss-color">rss_feed</i></a>
+                <a href="#"><i class="material-icons omrss-color">rss_feed</i></a>
             </li>
 
-            <li class="tooltipped ev-leave-msg" data-tooltip="留言" data-position="bottom">
-                <a href="#!"><i class="material-icons omrss-color">format_quote</i></a>
-            </li>
+            {% if not user %}
+                <li class="tooltipped" data-tooltip="一键登录" data-position="bottom">
+                    <a href="#model-omrss-login" class="modal-trigger"><i class="material-icons omrss-color">person</i></a>
+                </li>
+            {% else %}
+                <li data-oauth-id="{{ user.oauth_id }}"
+                    data-oauth-name="{{ user.oauth_name }}" id="omrss-my">
+                    <img src="{{ user.avatar }}" class="omrss-avatar circle" alt="头像" />
+                </li>
 
+            {% endif %}
             <li><a data-target="omrss-sidenav" class="sidenav-trigger show-on-large">
                 <i class="material-icons omrss-color">menu</i></a>
             </li>
@@ -60,3 +103,19 @@
         </ul>
     </div>
 </nav>
+
+<!-- 登录窗口 -->
+<div id="model-omrss-login" class="modal">
+    <div class="modal-content">
+        <h3>即将跳转到三方平台登录</h3>
+
+        <p>登录后可以跨平台同步数据，享受更多特权</p>
+        <p>目前仅支持<i> GitHub OAuth </i>认证，过程只会获取您的公开信息，预计需要几秒钟时间</p>
+
+        <div class="modal-footer">
+            <a href="https://github.com/login/oauth/authorize?client_id={{ github_oauth_key }}">
+                <button class="btn waves-effect waves-light">我知道了</button>
+            </a>
+        </div>
+    </div>
+</div>

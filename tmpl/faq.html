@@ -1,7 +1,7 @@
 {% if not mobile %}
-    <h1>›› FAQ</h1>
+<h1><i class="material-icons">help</i> FAQ</h1>
 {% else %}
-    <h1>FAQ</h1>
+<h1><i class="material-icons">help_outline</i> FAQ</h1>
 {% endif %}
 
 <blockquote>
@@ -11,7 +11,7 @@
 <div class="divider"></div>
 
 <div class="flow-text" id="omrss-third">
-    <h3>1. Oh My RSS 的内容源是否都有版权？</h3>
+    <h3>1. 己思的内容源是否都有版权？</h3>
     <blockquote>
 
         我们对于版权是十分重视的，目前的 RSS 源主要有三类：
@@ -21,30 +21,31 @@
             <li>未知版权的，我们会以摘要转载的形式展现（即只展示摘要部分）</li>
         </ol>
         需要注意的是，有部分 RSS 源是用户提交的，如果发现其中有侵犯了您的权益，欢迎留言或邮件告知（ <code
-            class="language-markup omrss-color">richshaw#126.com</code> #替换为@），我们会在24小时内处理。
+            class="language-markup omrss-color">richshaw#126.com</code> #替换为@），我们会在24小时内处理
     </blockquote>
 
     <br/>
-    <h3>2. Oh My RSS 对于博主来说是否减少了访问量？</h3>
+    <h3>2. 己思对于博主来说是否减少了访问量？</h3>
     <blockquote>
-        Oh My RSS 可以看作是另一种形态（在线）的 RSS 阅读器，并不会对源站点造成冲击。
-        事实上反而给不少站点增加了流量，因此两者是共生关系，而不是竞争关系。
+        己思可以看作是另一种形态（在线）的 RSS 阅读器，只保留最近一周的内容，并不会对源站点造成冲击。
+        事实上反而给不少站点增加了流量，因此两者是共生关系，而不是竞争关系
     </blockquote>
 
     <br/>
-    <h3>3. 登录入口在哪里？帐号是怎么管理的？</h3>
+    <h3>3. 帐号是怎么管理的？</h3>
     <blockquote>
         <ul>
-            <li>没有登录入口，打开页面后会自动登录</li>
-            <li>帐号是基于本地算法生成，无需向服务器注册</li>
+            <li>所有的操作都可以以游客身份完成</li>
+            <li>支持三方平台的 OAuth 登录认证，目前仅支持 GitHub</li>
         </ul>
-        这么做主要是考虑用户隐私问题，不过这会导致不同的设备、浏览器会使用不同的帐号，后续会考虑帐号同步需求。
+        登录后会享受更多特权，如果您有 GitHub 账号的话推荐登录后使用
     </blockquote>
 
     <br/>
-    <h3>4. 我提交的 RSS 源为什么被隐藏了？</h3>
+    <h3>4. 我提交的 RSS 源为什么没有更新？</h3>
     <blockquote>
-        用户提交的 RSS 源一周后会被重新评分，低于一定的值就会在界面上隐藏（需要点击“查看更多”显示），这并不影响源的更新及订阅。
+        用户提交的 RSS 源一周后会被重新评分，为了充分利用计算资源，评分较低的源如果<b>连续3天</b>没有用户访问，
+        就会停止更新，直到有用户请求触发恢复更新。
         <p>PS：高评分源的典型特征：</p>
         <ul>
             <li>IT 领域</li>
@@ -54,33 +55,47 @@
     </blockquote>
 
     <br/>
-    <h3>5. RSS源的同步周期是多久？</h3>
+    <h3>5. RSS 源的同步周期是多久？</h3>
     <blockquote>
-        普通源一般是每 1~2 小时同步一次，像周报、月报这种内容一般会在周末或者月初特定的时间节点进行同步。
+        普通源一般是每 1~2 小时同步一次，像周报、月报这种内容一般会在周末或者月初特定的时间节点进行同步
     </blockquote>
 
     <br/>
     <h3>6. 移动版网站有些按钮按不了？页面跳转不正常？</h3>
     <blockquote>
-        这是因为手机端的浏览器兼容性不同，建议使用手机版 Chrome 浏览器打开。<br/>
-        为了确保最佳的用户体验，不建议在其他 APP （例如微信、QQ、微博）内打开。
+        这是因为手机端的浏览器兼容性不同，建议使用手机版 Chrome 浏览器打开<br/>
+        为了确保最佳的用户体验，不建议在其他 APP （例如微信、QQ、微博）内打开
     </blockquote>
 
     <br/>
     <h3>7. 不能看到历史文章？</h3>
     <blockquote>
-        目前的设定是只展示当前用户订阅的<b>一个月内</b>的文章，历史内容（一年之内的）只能通过搜索获得。<br/>
-        所以，请及时消费您订阅的内容。
+        目前的设定是只展示当前用户订阅的<b>一周内</b>的文章，历史内容只能通过搜索获得<br/>
+        所以，请及时消费您订阅的内容
     </blockquote>
 
     <br/>
-    <h3>8. 我有业余时间，如何参与到这个项目中来？</h3>
+    <h3>8. 登录后有什么特权？</h3>
     <blockquote>
-        Oh My RSS 有多名维护者，都是线上协作。有多种参与渠道：
+        登录后可以跨平台同步数据、查看更多订阅数据、更好的用户体验等<br/>
+        后续会有更多特权推出，推荐登录使用
+    </blockquote>
+
+    <br/>
+    <h3>9. 如何添加公众号订阅？</h3>
+    <blockquote>
+        目前支持<a href="https://www.ershicimi.com/" target="_blank">二十次幂</a>上的微信公众号<br/>
+        在「我的订阅」里提交对应的公众号主页即可，以「微信开发者」公众号为例，提交：<code>https://www.ershicimi.com/a/5558</code>
+    </blockquote>
+
+    <br/>
+    <h3>10. 我有业余时间，如何参与到这个项目中来？</h3>
+    <blockquote>
+        己思有多名维护者，都是线上协作。有多种参与渠道：
         <ul>
-            <li>微信交流群</li>
-            <li>Slack需求讨论</li>
-            <li>Github</li>
+            <li>微信交流群（添加管理员 <code>richshaw</code>，备注：己思）</li>
+            <li><a href="https://join.slack.com/t/ohmyrss/shared_invite/enQtOTA5NTExODMxMDYxLTFjM2M3NmZmNjVhYjhhYzk0YTRmNDdjZTE5OWNlOGUzYmVhNjFmODI2YTU2ODc2NjU2NmRhMDc2ZWVlNzY3ZTA" target="_blank">Slack</a> 需求讨论</li>
+            <li><a href="https://github.com/richshaw2015/oh-my-rss" target="_blank">GitHub</a></li>
         </ul>
         在内容源建设、需求、营销推广等方面，我们都非常欢迎志愿者参与进来。如果表现出色，更有机会成为核心维护组成员~
     </blockquote>

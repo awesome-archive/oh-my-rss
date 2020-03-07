@@ -2,18 +2,29 @@
 <h1 id="omrss-article-title">{{ article.title }}</h1>
 
 <blockquote id="omrss-article-stats">
-    {% if article.site.copyright == 20 or article.site.copyright == 0 %}
-        摘要转载自
-    {% elif article.site.copyright == 30 %}
+    {% if not user %}
+        {% if article.site.copyright < 30 %}
+            摘要转载自
+        {% else %}
+            原文转载自
+        {% endif %}
+    {% else %}
         原文转载自
     {% endif %}
+
     「{{ article.site.cname }}」 (<a href="{{ article.src_url }}" target="_blank" class="ev-open-src"
-                                                  data-id="{{ article.uindex }}">{{ article.src_url |unquote }}</a>)
+                                                  data-id="{{ article.uindex }}">
+        {% if article.site.creator == 'wemp' %}
+            mp.weixin.qq.com
+        {% else %}
+            {{ article.src_url |unquote }}
+        {% endif %}
+    </a> ) By {{ article.author |default:article.site.author }}
 
     <p id="omrss-read-stats">预计阅读时间<b> 0 </b>分钟（共 0 个字， 0 张图片， 0 个链接）</p>
 
     {% if article.copyright == 0 %}
-        <p>侵犯了您的权益？请<a href="#!" class="ev-leave-msg">在此</a>留言</p>
+        <p>侵犯了您的权益？请<a href="#" class="ev-leave-msg">在此</a>留言</p>
     {% endif %}
 
 </blockquote>

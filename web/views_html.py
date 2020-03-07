@@ -1,12 +1,11 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator
-from django.http import HttpResponseNotFound, HttpResponseServerError
+from django.http import HttpResponseNotFound
 from .models import *
-from .utils import get_page_uv, get_subscribe_sites
+from .utils import get_page_uv, get_subscribe_sites, get_login_user, get_user_sub_feeds, set_user_read_article
 from .verify import verify_request
 import logging
-from datetime import datetime
-from django.utils.timezone import timedelta
+from .sql import *
 
 logger = logging.getLogger(__name__)
 
@@ -14,33 +13,46 @@ logger = logging.getLogger(__name__)
 @verify_request
 def get_article_detail(request):
     """
-    获取文章详情
+    获取文章详情；已登录用户记录已读
     """
     uindex = request.POST.get('id')
+    user = get_login_user(request)
     mobile = request.POST.get('mobile', False)
 
     try:
-        article = Article.objects.get(uindex=uindex)
-
-        context = dict()
-        context['article'] = article
-
-        if mobile:
-            return render(request, 'mobile/article.html', context=context)
-        else:
-            return render(request, 'article/index.html', context=context)
+        article = Article.objects.get(uindex=uindex, status='active')
     except:
         logger.warning(f"获取文章详情请求处理异常：`{uindex}")
-    return HttpResponseNotFound("Param error")
+        return HttpResponseNotFound("Param error")
+
+    if user:
+        set_user_read_article(user.oauth_id, uindex)
+
+    context = dict()
+    context['article'] = article
+    context['user'] = user
+
+    if mobile:
+        return render(request, 'mobile/article.html', context=context)
+    else:
+        return render(request, 'article/index.html', context=context)
 
 
 @verify_request
 def get_all_feeds(request):
     """
-    获取订阅列表
+    获取订阅列表，已登录用户默认展示已订阅内容；区分已订阅、未订阅
     """
-    show_feeds = Site.objects.filter(status='active', star__gte=9).order_by('-star')
-    hide_feeds = Site.objects.filter(status='active', star__lt=9).order_by('-star')
+    user = get_login_user(request)
+    
+    if user is None:
+        # 游客按照推荐和普通
+        sub_sites = Site.objects.filter(status='active', star__gte=20).order_by('-star')
+        unsub_sites = Site.objects.filter(status='active', star__lt=20).order_by('-star')
+    else:
+        user_sub_feeds = get_user_sub_feeds(user.oauth_id)
+        sub_sites = Site.objects.filter(status='active', name__in=user_sub_feeds).order_by('-star')
+        unsub_sites = Site.objects.filter(status='active').exclude(name__in=user_sub_feeds).order_by('-star')
 
     try:
         last_site = Site.objects.filter(status='active', creator='user', star__gte=9).order_by('-ctime')[0]
@@ -49,9 +61,10 @@ def get_all_feeds(request):
         submit_tip = '提交RSS源，例如：https://coolshell.cn/feed'
 
     context = dict()
-    context['show_feeds'] = show_feeds
-    context['hide_feeds'] = hide_feeds
+    context['sub_sites'] = sub_sites
+    context['unsub_sites'] = unsub_sites
     context['submit_tip'] = submit_tip
+    context['user'] = user
 
     return render(request, 'feeds.html', context=context)
 
@@ -67,6 +80,75 @@ def get_homepage_intro(request):
     context['mobile'] = mobile
 
     return render(request, 'intro.html', context=context)
+
+
+@verify_request
+def get_recent_articles(request):
+    """
+    获取最近更新内容
+    """
+    user = get_login_user(request)
+    recommend = request.POST.get('recommend', 'recommend')
+
+    if recommend == 'unrecommend':
+        articles = Article.objects.raw(get_other_articles_sql)
+    elif recommend == 'recommend':
+        articles = Article.objects.raw(get_recommend_articles_sql)
+    else:
+        logger.warning(f'未知的类型：{recommend}')
+
+    user_sub_feeds = []
+    if user:
+        user_sub_feeds = get_user_sub_feeds(user.oauth_id)
+
+    context = dict()
+    context['articles'] = articles
+    context['user'] = user
+    context['user_sub_feeds'] = user_sub_feeds
+
+    return render(request, 'explore/recent_articles.html', context=context)
+
+
+@verify_request
+def get_explore(request):
+    """
+    获取发现页面
+    """
+    user = get_login_user(request)
+
+    articles = Article.objects.raw(get_recommend_articles_sql)
+
+    user_sub_feeds = []
+    if user:
+        user_sub_feeds = get_user_sub_feeds(user.oauth_id)
+
+    context = dict()
+    context['articles'] = articles
+    context['user'] = user
+    context['user_sub_feeds'] = user_sub_feeds
+
+    return render(request, 'explore/explore.html', context=context)
+
+
+@verify_request
+def get_recent_sites(request):
+    """
+    获取最近提交源
+    """
+    user = get_login_user(request)
+
+    user_sub_feeds = []
+    if user:
+        user_sub_feeds = get_user_sub_feeds(user.oauth_id)
+
+    sites = Site.objects.filter(status='active').order_by('-id')[:30]
+    context = dict()
+
+    context['user'] = user
+    context['sites'] = sites
+    context['user_sub_feeds'] = user_sub_feeds
+
+    return render(request, 'explore/recent_sites.html', context=context)
 
 
 @verify_request
@@ -106,24 +188,34 @@ def get_all_issues(request):
 @verify_request
 def get_articles_list(request):
     """
-    获取我的文章列表
+    获取我的文章列表，游客展示默认推荐内容；登录用户展示其订阅内容
     """
+    # 请求参数获取
     sub_feeds = request.POST.get('sub_feeds', '').split(',')
     unsub_feeds = request.POST.get('unsub_feeds', '').split(',')
     page_size = int(request.POST.get('page_size', 10))
     page = int(request.POST.get('page', 1))
     mobile = request.POST.get('mobile', False)
 
-    # 个人订阅处理
-    my_sub_sites = get_subscribe_sites(tuple(sub_feeds), tuple(unsub_feeds))
-    # 只查询最近一个月的
-    last1month = datetime.now() - timedelta(days=30)
+    user = get_login_user(request)
 
-    my_articles = Article.objects.all().prefetch_related('site').filter(
-        status='active', site__name__in=my_sub_sites, ctime__gte=last1month).order_by('-id')[:990]
+    if user is None:
+        visitor_sub_sites = get_subscribe_sites(tuple(sub_feeds), tuple(unsub_feeds))
+
+        my_articles = Article.objects.all().prefetch_related('site').filter(
+            status='active', is_recent=True, site__name__in=visitor_sub_sites).order_by('-id')[:300]
+    else:
+        user_sub_feeds = get_user_sub_feeds(user.oauth_id)
+
+        if not user_sub_feeds:
+            logger.warning(f'用户未订阅任何内容：`{user.oauth_id}')
+
+        # TODO 这个 sql 比较耗时
+        my_articles = Article.objects.all().prefetch_related('site').filter(
+            status='active', is_recent=True, site__name__in=user_sub_feeds).order_by('-id')[:999]
 
     if my_articles:
-        # 分页处理，TODO 优化这里的性能
+        # 分页处理
         paginator_obj = Paginator(my_articles, page_size)
         try:
             # 页面及数据
@@ -135,6 +227,8 @@ def get_articles_list(request):
             context['pg'] = pg
             context['uv'] = uv
             context['num_pages'] = num_pages
+            context['user'] = user
+
             if mobile:
                 return render(request, 'mobile/list.html', context=context)
             else:
@@ -142,5 +236,5 @@ def get_articles_list(request):
         except:
             logger.warning(f"分页参数错误：`{page}`{page_size}`{sub_feeds}`{unsub_feeds}")
             return HttpResponseNotFound("Page number error")
-    logger.warning("没有订阅任何内容")
+
     return HttpResponseNotFound("No Feeds subscribed")

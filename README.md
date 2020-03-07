@@ -1,18 +1,26 @@
-# Oh My RSS
-Oh My RSS 是一个开源的在线 RSS 服务，旨在汇聚互联网上的精华内容，为中文 IT 从业者提供一个优质的学习圈子。
+# 己思 - Oh My RSS
+己思是一个开源的在线 RSS 阅读服务，旨在为 IT 从业者提供一个优质的学习圈子。 
 
 ![预览](https://raw.githubusercontent.com/richshaw2015/oh-my-rss/master/assets/img/preview.jpg)
 
 ## 功能特性
 
 ### 持续扩充的订阅源
-为了确保内容质量，Oh My RSS 对订阅源有严格的筛选标准：
+为了确保内容质量，己思对订阅源有严格的筛选标准：
 - 巨头公司的技术博客
 - 技术大拿的博客
 - 互联网名站的热门
 
- 除了爬虫支持，也可以提交自定义的订阅源^o^
- 
+一些支持的订阅源： 
+`酷 壳 – CoolShell` 、  `科技爱好者周刊` 、  `GitHub 热门` 、  `湾区日报` 、  `前端精读周刊` 、  `... `
+
+
+订阅源主要支持三种类型以满足您的个性化订阅需求：
+
+- 通过其他途径生成的 RSS 源（在线提交）
+- 微信公众号（在线提交）
+- 自定义 Scrapy 爬虫（贡献源码）
+
 ### VimLike的快捷键
 Vim 党的福音来了~
 
@@ -63,8 +71,7 @@ python3 manage.py runserver
 
 初始化：
 ```shell
-python3 manage.py makemigrations web 
-python3 manage.py migrate
+python3 manage.py migrate web
 ```
 
 数据录入：
@@ -77,12 +84,10 @@ python3 manage.py migrate
 scrapy crawl coolshell
 ```
 
-提交的订阅源会以1~2小时一次的频率更新。
-
 ## 贡献
 详见 CONTRIBUTING.md
 
 ## 交流群
-请扫码加群，备注 `RSS` 或加入我们的[Slack社区](https://ohmyrss.slack.com/)
+请添加管理员 `richshaw`，备注：`己思`或加入我们的 [Slack 社区](https://ohmyrss.slack.com/)
 
 ![预览](https://raw.githubusercontent.com/richshaw2015/oh-my-rss/master/assets/img/qrcode.jpg)

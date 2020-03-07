@@ -2,7 +2,7 @@ scrapy
 bs4
 lxml
 requests
-django
+django ~= 2.2
 redis
 selenium
 feedparser
@@ -13,3 +13,4 @@ gevent
 pyyaml
 ua-parser
 user-agents
+pillow

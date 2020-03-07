@@ -1,70 +1,79 @@
 {% load helpers %}
-<h1>›› 我的订阅</h1>
+
+<h1><i class="material-icons">rss_feed</i> 我的订阅</h1>
 
 <div class="divider"></div>
 
 <div class="row">
-    <div class="input-field col s7">
+    <div class="input-field col s9">
         <input id="omrss-feed-input" type="text" class="validate">
         <label for="omrss-feed-input" id="omrss-rss-tips">{{ submit_tip }}</label>
     </div>
-    <div class="input-field col s5">
+    <div class="input-field col s3">
         <button class="btn waves-effect waves-light ev-submit-feed" type="submit">提交RSS源
             <i class="material-icons right">send</i>
         </button>
     </div>
 </div>
 
-
+{% if user %}
 <div class="row">
-    {% for feed in show_feeds %}
+    <div class="col s12">
+        <ul class="tabs">
+            <li class="tab col s6 ev-my-subs">
+                <a class="omrss-color active" href="#omrss-my-subs">已订阅</a></li>
+            <li class="tab col s6 ev-my-unsubs">
+                <a class="omrss-color" href="#omrss-my-unsubs">未订阅</a></li>
+        </ul>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col s12">
+        <ul class="tabs">
+            <li class="tab col s6 ev-my-subs">
+                <a class="omrss-color active" href="#omrss-my-subs">推荐订阅</a></li>
+            <li class="tab col s6 ev-my-unsubs">
+                <a class="omrss-color" href="#omrss-my-unsubs">更多订阅</a></li>
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+<div class="row" id="omrss-my-subs">
+    {% for feed in sub_sites %}
         <div class="col s6 omrss-item" data-star="{{ feed.star }}" data-name="{{ feed.name }}">
             <img src="{{ feed.favicon |default:'/assets/img/rss.png' }}" class="circle responsive-img favico rss-text"/>
             <div class="rss-title rss-text">
-                <a href="{{ feed.link }}" target="_blank" class="tooltipped" data-tooltip="{{ feed.brief }}"
-                   data-position="top">{{ feed.cname }}</a>
+                <a href="{{ feed.link }}" target="_blank">{{ feed.cname }}</a>
             </div>
 
-            <a class="waves-effect waves-light btn-small right rss-text omrss-right-space ev-toggle-feed"
+            <a class="waves-effect waves-light btn-small right rss-text omrss-recent-badge ev-toggle-feed omrss-bgcolor"
                data-name="{{ feed.name }}">取消订阅</a>
-            <span class="rss-text right omrss-right-space omrss-tag">{{ feed.tag }}</span>
-            <span class="right rss-text omrss-right-space yellow-text text-darken-2">{{ feed.star |to_stars }}</span>
+            <span class="right rss-text omrss-recent-badge yellow-text text-darken-2">{{ feed.star |to_stars }}</span>
         </div>
     {% endfor %}
 </div>
 
-<div class="divider"></div>
-
-<!-- 评分低的隐藏 -->
-<div class="card-panel hoverable ev-display-btn">
-    <div class="text-darken-2 omrss-article-bottom center-align">
-        <a href="#!"><i class="material-icons omrss-article-bottom">unfold_more</i> 查看更多</a>
-    </div>
-</div>
-
-<div class="row hide" id="omrss-rss-hide">
-    {% for feed in hide_feeds %}
+<div class="row" id="omrss-my-unsubs">
+    {% for feed in unsub_sites %}
         <div class="col s6 omrss-item" data-star="{{ feed.star }}" data-name="{{ feed.name }}">
             <img src="{{ feed.favicon |default:'/assets/img/rss.png' }}" class="circle responsive-img favico rss-text"/>
             <div class="rss-title rss-text">
-                <a href="{{ feed.link }}" target="_blank" class="tooltipped" data-tooltip="{{ feed.brief }}"
-                   data-position="top">{{ feed.cname }}</a>
+                <a href="{{ feed.link }}" target="_blank">{{ feed.cname }}</a>
             </div>
 
-            <a class="waves-effect waves-light btn-small right rss-text omrss-right-space ev-toggle-feed"
-               data-name="{{ feed.name }}">取消订阅</a>
-            <span class="rss-text right omrss-right-space omrss-tag">{{ feed.tag }}</span>
-            <span class="right rss-text omrss-right-space yellow-text text-darken-2">{{ feed.star |to_stars }}</span>
+            <a class="waves-effect waves-light btn-small right rss-text omrss-recent-badge ev-toggle-feed"
+               data-name="{{ feed.name }}">订阅</a>
+            <span class="right rss-text omrss-recent-badge yellow-text text-darken-2">{{ feed.star |to_stars }}</span>
         </div>
     {% endfor %}
 </div>
 
 <script>
-    $('.tooltipped').tooltip();
-
     // 轮换RSS提示信息
-    let before_tip = '提交RSS源，例如：https://coolshell.cn/feed';
-    let after_tip = '{{ submit_tip }}';
+    var before_tip = '提交RSS源，例如：https://coolshell.cn/feed';
+    var after_tip = '{{ submit_tip }}';
     setInterval(function () {
         if ($('#omrss-rss-tips').length === 1) {
             console.log('开始切换tip');
